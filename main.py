@@ -1,40 +1,16 @@
-from lark import Lark, Transformer, v_args
-from queue import Queue
+from lark import Lark
+from lexer import EnglishLexer
 
-f = open('./grammar.lark', 'r');
-grammar = f.read();
-f.close();
+with open('./grammar.lark', 'r') as f: grammar = f.read();
 
-@v_args(inline=True)    # Affects the signatures of the methods
-class MultipleClauseTransformer(Transformer):
-    def __init__(self):
-        self.nps = []
-        self.vps = []
-    def start(self, x): return x;
-    
-    def to_string(self, array):
-        return array if isinstance(array, str) else " ".join(filter(lambda x: x is not None, array));
-    
-    def concat(self, *args):
-        return self.to_string(args);
-    
-    def np(self, *identified):
-        return self.to_string(identified);
-    
-    def vp(self, *identified):
-        return self.to_string(identified);
+nlp_parser = Lark(grammar, parser='lalr', lexer=EnglishLexer);
 
-    def sentence(self, noun, verb):
-        return noun + " " + verb + ".";
+sentences = [
+    "the boy whom I met yesterday cried and laughed.",
+    "the big sad dog eat."
+]
 
-    def thrd_prsn_conjuagated_verb(self, verb):
-        return verb + "s";
-
-    def ing_conjugated_verb(self, be, verb):
-        return be + " " + verb + "ing";
-
-nlp_parser = Lark(grammar, parser='lalr', transformer=MultipleClauseTransformer());
-
-result = nlp_parser.parse("a big sad dog did not eat or killed the cat nor the man.");
-
-print(result);
+for s in sentences:
+    print("Parsing \"" + s + "\"")
+    print("--------------------------------")
+    print(nlp_parser.parse(s).pretty())
