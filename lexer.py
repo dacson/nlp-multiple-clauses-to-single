@@ -12,6 +12,7 @@ class EnglishLexer(Lexer):
         words = list();
         for w in tmp:
             if w[-1:] == '.': words += [w[0:-1], "."]
+            elif w[-1:] == ',': words += [w[0:-1], ","]
             else: words += [w]
         return words
 
@@ -20,7 +21,7 @@ class EnglishLexer(Lexer):
             self.f.seek(0);
             found = False
             for token, value in self.csvr:
-                if value == word:
+                if word == value:
                     found = True;
                     yield Token(token, value)
                     break

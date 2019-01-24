@@ -1,12 +1,18 @@
 ?start: whole_sentence
 whole_sentence: sentence END_POINT
     | whole_sentence whole_sentence
-sentence: np rel_clause? vp
-np: DET? CARD? ORD? QUANT? ap? NOUN
+sentence: np vp
+np: ng rel_clause?
+ng: DET? CARD? ORD? QUANT? ap? NOUN
     | np COORD np
 rel_clause: REL_WORD sentence
-vp: VERB np?
+    | REL_WORD vp
+vp: conjugated_verb np?
+    | conjugated_verb ap?
     | vp COORD vp
+conjugated_verb: NEGATION? CONJUGATED_BE
+    | AUXILIARY NEGATION? VERB?
+    | VERB
 ap: ADJ
     | ap ap
     | ap COORD ap
@@ -21,6 +27,9 @@ ap: ADJ
 %declare ADJ
 %declare ORD
 %declare CARD
+%declare CONJUGATED_BE
+%declare AUXILIARY
+%declare NEGATION
 
 %import common.WS
 %ignore WS

@@ -7,7 +7,9 @@ nlp_parser = Lark(grammar, parser='lalr', lexer=EnglishLexer);
 
 sentences = [
     "the boy whom I met yesterday cried and laughed.",
-    "the big sad dog eat."
+    "the boy who is tall, skinny and strange smile and laugh.",
+    "he can speak italian and english.",
+    "the dog eat a man who is tall."
 ]
 
 for s in sentences:
