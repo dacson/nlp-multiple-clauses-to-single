@@ -1,0 +1,222 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{listings}
+\usetikzlibrary{shapes.arrows, fadings}
+
+\usetheme{Madrid}
+\usefonttheme[onlymath]{serif}
+
+\begin{document}
+
+\title{Formal languages and compilers}
+\subtitle{Projects 2018}
+\author{Henri LEFEBVRE}
+
+\maketitle
+
+\begin{frame}\tableofcontents\end{frame}
+
+\section{Top-down parser : begin...end}
+\begin{frame}[fragile]
+    \frametitle{Introduction}
+
+    \begin{block}{Problem statement}
+        Parse input strings $s$ respecting the following rules :
+        \begin{itemize}
+            \item $s$ must start with "begin" and end with "end"
+            \item both "begin...end" and "\{...\}" define block structures which must not overlap in $s$
+        \end{itemize}
+    \end{block}
+
+    \begin{minipage}{.45\textwidth}
+        \begin{exampleblock}{Valid example}
+            \begin{lstlisting}
+begin
+    <text>
+    {
+        <text>
+    }
+    <text>
+end
+            \end{lstlisting}
+        \end{exampleblock}
+    \end{minipage}
+    \hspace{.2cm}
+    \begin{minipage}{.45\textwidth}
+        \begin{alertblock}{Invalid example}
+            \begin{lstlisting}
+begin
+    <text>
+    {
+        begin <text>
+    }
+    end <text>
+end
+            \end{lstlisting}
+        \end{alertblock}
+    \end{minipage}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{LL Grammar}
+    
+    \textbf{Grammar definition :}
+    \begin{align*}
+        <pgm> &::= <stmts> \$\\
+        <stmts> &::= \textrm{begin} <txt> \textrm{end}\\
+        <txt> &::= <letter><txt> | <stmts><txt> | \{ <txt> \} | \epsilon\\
+        <letter> &::= a|...|z
+    \end{align*}
+
+    \textbf{Predicitve parsing :}
+    {\tiny
+        \begin{center}
+            \begin{tabular}{|c|c|c|c|c|c|c|c|}
+                \hline
+                NT symbol & [a-z] & \{ & \} & begin & end & \$ & $\epsilon$ \\\hline
+                $<pgm>$ & & & & $<stmts>$ & & & \\\hline
+                $<stmts>$ & & & & $\textrm{begin}<txt>\textrm{end}$ & & & \\\hline
+                $<txt>$ & $<letter><txt>$ & $\{<txt>\}$ & $\epsilon$ & $<stmts><txt>$ & $\epsilon$ & & \\\hline
+                $<letter>$ & $\epsilon$ & & & & & & \\\hline
+            \end{tabular}
+        \end{center}
+    }
+\end{frame}
+
+\begin{frame}
+    \frametitle{Implementation}
+    \begin{itemize}
+        \item Implmented in C++
+        \begin{itemize}
+            \item $Token$ class to represent tokens
+            \item $ParsingTable$ class to link token and their predicted successors
+            \item $Buffer$ class to manage efficient reading of input string
+            \item $Interpreter$ class to make actions when rules are recognized
+            \item $SyntacticAnalyser$ class to generate token from the $Buffer$ class
+        \end{itemize}
+        \item see https://github.com/hlefebvr/unige-top-down-parser
+    \end{itemize}
+\end{frame}
+
+\begin{frame}\tableofcontents\end{frame}
+
+\section{Bottom-up parser : NLP with multiple clauses}
+
+\begin{frame}
+    \frametitle{Introduction}
+    \begin{block}{Problem statement}
+        \begin{itemize}
+            \item Parse in-english input strings
+            \item Decompose multiple-clause sentences into several single-clause sentences
+        \end{itemize}
+    \end{block}
+
+    \begin{exampleblock}{Worked example}
+        The boy [who is tall, skinny and strange] smiles and laughs.
+        \begin{itemize}
+            \item The boy is tall
+            \item The boy is skinny
+            \item The boy is strange
+            \item The boy smiles
+            \item The boy laughs
+        \end{itemize}
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}
+    \frametitle{LALR Grammar}
+
+    {\tiny
+    \begin{align*}
+        <whole\_sentence> &::= <sentence> .\\
+        <sentence> &::= <np?> <vp>\\
+        <np> &::= <ng> <rel\_clause?>\\
+        <ng> &::= DET?\; CARD?\; ORD?\; QUANT?\; <ap>? NOUN\\
+            & | <np> COORD <np>\\
+        <rel\_clause> &::= REL\_WORD <sentence>\\
+        <vp> &::= <single\_vp> | <add\_vp>\\
+        <single\_vp> &::= <conjugated\_verb> <np?>\\
+            & | <conjugated\_verb> <ap?>\\
+        <add\_vp> &::= <vp> COORD <vp>\\
+        <conjugated\_verb> &::= NEGATION?\; CONJUGATED\_BE\\
+            & | AUXILIARY\; NEGATION?\; VERB?\\
+            & | VERB\\
+        <ap> &::= ADJ | <ap> <ap> | <ap> COORD <ap>
+    \end{align*}
+    }
+
+    \textbf{An external dictionary defines COORD, NOUN, ADJ, NEGATION, CONJUGATED\_BE, VERB, ... which are token returned by the lexer}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Implementation}
+    \begin{itemize}
+        \item Python 3.0
+        \item Lark parsing library (https://github.com/lark-parser/lark)
+        \begin{itemize}
+            \item with a custom parser making use of custom dictionary
+        \end{itemize}
+        \item Idea : transform the parsing tree into a simpler tree where, given one level of exploration (from bottom to up), we end up treating structures like $<np><rel\_clause?><vp>$
+        \item see https://github.com/hlefebvr/nlp-multiple-clauses-to-single
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Results}
+    \textbf{he can speak italian and english.}
+    \begin{itemize}
+        \item he can speak italian.
+        \item he can speak english.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Results}
+    \textbf{the boy and the cat who is tall, skinny and strange smile and laugh.}
+    \begin{itemize}
+        \item the cat is tall.
+        \item the cat is skinny.
+        \item the cat is strange.
+        \item the boy smile.
+        \item the boy laugh.
+        \item the cat smile.
+        \item the cat laugh.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Results}
+    \textbf{the dog eat a man who is tall.}
+    \begin{itemize}
+        \item a man is tall.
+        \item the dog eat a man.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Results}
+    \textbf{the boy whom I met yesterday cried and laughed.}
+    \begin{itemize}
+        \item I met yesterday the boy
+        \item the boy cried.
+        \item the boy laughed.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Limitations}
+    \begin{itemize}
+        \item Using a context free grammar enforces us to make choices. \\ Example : "this" recognized as noun or determinant ?
+        \begin{itemize}
+            \item this dog is eating. ("this" as determinant)
+            \item this is strange. ("this" as noun)
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\end{document}

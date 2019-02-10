@@ -1,0 +1,38 @@
+\frametitle{Introduction}
+
+    \begin{block}{Problem statement}
+        Parse input strings $s$ respecting the following rules :
+        \begin{itemize}
+            \item $s$ must start with "begin" and end with "end"
+            \item both "begin...end" and "\{...\}" define block structures which must not overlap in $s$
+        \end{itemize}
+    \end{block}
+
+    \begin{minipage}{.45\textwidth}
+        \begin{exampleblock}{Valid example}
+            \begin{lstlisting}
+begin
+    <text>
+    {
+        <text>
+    }
+    <text>
+end
+            \end{lstlisting}
+        \end{exampleblock}
+    \end{minipage}
+    \hspace{.2cm}
+    \begin{minipage}{.45\textwidth}
+        \begin{alertblock}{Invalid example}
+            \begin{lstlisting}
+begin
+    <text>
+    {
+        begin <text>
+    }
+    end <text>
+end
+            \end{lstlisting}
+        \end{alertblock}
+    \end{minipage}
+
