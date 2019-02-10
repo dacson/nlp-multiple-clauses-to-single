@@ -36,6 +36,10 @@ class Actions(Transformer):
                     for str_noun_phrase in NG.children:
                         print(str_noun_phrase + " " + str_verb_phrase + ".")
                 return Tree("NP", NG.children)
+            elif len(rel_clause_sentence.children) == 2:
+                sentence = " ".join([x.children[0] for x in rel_clause_sentence.children])
+                for str_noun_phrase in NG.children:
+                    print(sentence + " " + str_noun_phrase)
         return Tree("NP", matches[0].children)
     
     def vp(self, matches):
@@ -71,10 +75,13 @@ class Actions(Transformer):
     def sentence(self, matches):
         if len(matches) == 2:
             NP, VP = matches
+            simple_clauses = []
             for noun_phrase in NP.children:
                 for verb_phrase in VP.children:
-                    print(str(noun_phrase) + " " + verb_phrase + ".")
-            return Tree("sentence", [])
+                    simple_clause = str(noun_phrase) + " " + verb_phrase + ".";
+                    print(simple_clause)
+                    simple_clauses += [simple_clause]
+            return Tree("sentence", matches)
         return Tree("sentence", matches)
 
     def whole_sentence(self, matches):

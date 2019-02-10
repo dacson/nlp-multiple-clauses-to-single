@@ -5,10 +5,10 @@ from transformer import Actions
 with open('./grammar.lark', 'r') as f: grammar = f.read();
 
 sentences = [
-    # "the boy whom I met yesterday cried and laughed.",
-    "the boy who is tall, skinny and strange smile and laugh.",
+    "the boy and the cat who is tall, skinny and strange smile and laugh.",
     "he can speak italian and english.",
-    "the dog eat a man who is tall."
+    "the dog eat a man who is tall.",
+    "the boy whom I met yesterday cried and laughed."
 ]
 
 for s in sentences:
