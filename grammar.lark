@@ -1,15 +1,16 @@
 ?start: whole_sentence
 whole_sentence: sentence END_POINT
     | whole_sentence whole_sentence
-sentence: np vp
+sentence: np? vp
 np: ng rel_clause?
 ng: DET? CARD? ORD? QUANT? ap? NOUN
     | np COORD np
 rel_clause: REL_WORD sentence
-    | REL_WORD vp
-vp: conjugated_verb np?
+vp: single_vp
+    | add_vp
+single_vp: conjugated_verb np?
     | conjugated_verb ap?
-    | vp COORD vp
+add_vp: vp COORD vp
 conjugated_verb: NEGATION? CONJUGATED_BE
     | AUXILIARY NEGATION? VERB?
     | VERB
