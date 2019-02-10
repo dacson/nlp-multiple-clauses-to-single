@@ -1,21 +1,6 @@
 from lark import Transformer, Tree, Token
 
-class Graph:
-    def __init__(self):
-        self.G = {}
-
-    def link(self, x, y):
-        if x not in self.G: self.G[x] = [y]
-        else: self.G[x] += [y]
-
-    def show(self):
-        for x in self.G:
-            for y in self.G[x]:
-                print(x, "==>" ,y)
-
 class Actions(Transformer):
-    def __init__(self): self.graph = Graph()
-    
     def ap(self, matches):
         adjs = []
         for match in matches:
@@ -34,7 +19,14 @@ class Actions(Transformer):
 
     def np(self, matches):
         if type(matches[-1]) is Tree and matches[-1].data == "rel_clause":
-            TODO = "treat rel_clause here"
+            NG, rel_clause = matches
+            rel_clause_sentence = matches[-1].children[1]
+            if len(rel_clause_sentence.children) == 1:
+                VP = rel_clause_sentence.children[0]
+                for str_verb_phrase in VP.children:
+                    for str_noun_phrase in NG.children:
+                        print(str_noun_phrase + " " + str_verb_phrase + ".")
+                return Tree("NP", NG.children)
         return Tree("np", matches)
     
     def vp(self, matches):
@@ -67,6 +59,14 @@ class Actions(Transformer):
                     arr += [child]
         return Tree("VP", arr)
 
+    def sentence(self, matches):
+        if len(matches) == 2:
+            NP, VP = matches
+            for noun_phrase in NP.children:
+                for verb_phrase in VP.children:
+                    print(noun_phrase + " " + verb_phrase + ".")
+            return Tree("sentence", [])
+        return Tree("sentence", matches)
+
     def whole_sentence(self, matches):
-        self.graph.show()
-        return Tree("whole_sentence", matches)
+        return Tree("whole_sentence", [])
