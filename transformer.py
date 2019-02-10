@@ -15,10 +15,19 @@ class Actions(Transformer):
     def ng(self, matches):
         if type(matches[-1]) is Token and matches[-1].type == "NOUN":
             return Tree("NG", [" ".join([str(x) for x in matches])])
-        return Tree("NG", matches)
+        ngs = []
+        for match in matches:
+            if type(match) is Token:
+                if match.type == "COORD": continue
+                ngs += [str(match)]
+            else:
+                for child in match.children:
+                    ngs += [str(child)]
+        return Tree("NG", ngs)
 
     def np(self, matches):
-        if type(matches[-1]) is Tree and matches[-1].data == "rel_clause":
+        # if type(matches[-1]) is Tree and matches[-1].data == "rel_clause":
+        if len(matches) == 2:
             NG, rel_clause = matches
             rel_clause_sentence = matches[-1].children[1]
             if len(rel_clause_sentence.children) == 1:
@@ -27,7 +36,7 @@ class Actions(Transformer):
                     for str_noun_phrase in NG.children:
                         print(str_noun_phrase + " " + str_verb_phrase + ".")
                 return Tree("NP", NG.children)
-        return Tree("np", matches)
+        return Tree("NP", matches[0].children)
     
     def vp(self, matches):
         return Tree("vp", matches)
@@ -64,7 +73,7 @@ class Actions(Transformer):
             NP, VP = matches
             for noun_phrase in NP.children:
                 for verb_phrase in VP.children:
-                    print(noun_phrase + " " + verb_phrase + ".")
+                    print(str(noun_phrase) + " " + verb_phrase + ".")
             return Tree("sentence", [])
         return Tree("sentence", matches)
 
