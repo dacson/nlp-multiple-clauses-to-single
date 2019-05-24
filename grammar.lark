@@ -11,7 +11,7 @@ vp: single_vp
 single_vp: conjugated_verb np?
     | conjugated_verb ap?
 add_vp: vp COORD vp
-conjugated_verb: NEGATION? CONJUGATED_BE
+conjugated_verb: CONJUGATED_BE NEGATION?
     | AUXILIARY NEGATION? VERB?
     | VERB
 ap: ADJ
